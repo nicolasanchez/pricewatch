@@ -1,0 +1,10 @@
+{% extends "account/_card.html" %}
+{% block title %}Cerrar sesión · PriceWatch{% endblock %}
+{% block card %}
+<h1 style="font-size:28px">¿Cerrar sesión?</h1>
+<form method="post" action="{% url 'account_logout' %}" style="display:flex;gap:8px;flex-wrap:wrap">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-dark">Cerrar sesión</button>
+  <a class="btn btn-outline" href="{% url 'core:home' %}">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,31 @@
+# Actualiza precios, tipos de cambio y alertas cada 6 horas contra la base de datos de Neon.
+# Necesita los secretos DATABASE_URL y SECRET_KEY en GitHub > Settings > Secrets and variables > Actions.
+name: Actualizar precios
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py update_prices
+        env:
+          DEBUG: "0"
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SITE_URL: https://pricewatch.nicosantor.com
+          SECURE_SSL_REDIRECT: "0"
+          EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          DEFAULT_FROM_EMAIL: ${{ secrets.DEFAULT_FROM_EMAIL }}

@@ -1,0 +1,11 @@
+{% load money %}
+<div class="done">
+  <span class="ok"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span>
+  <h3 role="status" style="font-size:24px">Alerta creada</h3>
+  <p>Te avisaremos cuando {{ game.title }} baje de {% money alert.target_price alert.currency %}{% if alert.store %} en {{ alert.store.name }}{% else %} en cualquier tienda{% endif %}.
+    {% if alert.bucket == "cumplidas" %}Ya está por debajo, así que te llegará el aviso en la próxima comprobación.{% endif %}</p>
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:6px">
+    <a class="btn btn-dark" href="{% url 'alerts:list' %}">Ver mis alertas</a>
+    <button type="button" class="btn btn-outline" data-close data-reset>Seguir mirando</button>
+  </div>
+</div>

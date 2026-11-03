@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load money %}
+{% block title %}{{ game.title }}: mejor precio en PC · PriceWatch{% endblock %}
+{% block content %}
+<div class="container page" style="padding-top:28px;gap:24px">
+  <p class="crumbs"><a href="{% url 'core:home' %}">Inicio</a> › <a href="{% url 'catalog:games' %}">Juegos</a> › {{ game.title }}</p>
+
+  <section class="card detail">
+    <div class="detail-top">
+      <div class="detail-media">{% if game.header_image %}<img src="{{ game.header_image }}" alt="{{ game.title }}">{% endif %}</div>
+      <div class="detail-info">
+        <div>
+          <h1>{{ game.title }}</h1>
+          <p class="muted" style="margin:6px 0 0;font-size:14px">{% if game.developer %}{{ game.developer }} · {% endif %}PC{% if game.release_date %} · {{ game.release_date|date:"j M Y" }}{% endif %}</p>
+        </div>
+        <div class="pills">
+          {% if game.genre %}<span class="pill">{{ game.genre }}</span>{% endif %}
+          {% if game.metacritic_score %}<span class="pill">Metacritic {{ game.metacritic_score }}</span>{% endif %}
+          {% if game.steam_rating_percent %}<span class="pill">Steam {{ game.steam_rating_percent }} %</span>{% endif %}
+          {% if game.steam_deck_verified %}<span class="pill">Verificado en Steam Deck</span>{% endif %}
+        </div>
+        {% if best %}
+        <div style="margin-top:6px;display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:13px;font-weight:600" class="muted">Mejor precio ahora · {{ best.store.name }}</span>
+          <div class="now-price">
+            <span class="price">{% money best.price best.currency %}</span>
+            {% if savings > 0 %}<span class="off-badge">-{{ savings }}%</span>{% endif %}
+          </div>
+          {% if base_price and base_price > best.price %}
+          <div class="base-price"><span class="muted" style="font-size:14px">Precio base</span><span class="price">{% money base_price best.currency %}</span></div>
+          {% endif %}
+          {% if low_price is not None %}
+          <span class="low-line"><i></i>Mínimo histórico {% money low_price low_currency %}{% if low_date %} · {{ low_date|date:"j M Y" }}{% endif %}</span>
+          {% endif %}
+        </div>
+        {% else %}
+        <p class="muted">Ahora mismo no tenemos precios de este juego.</p>
+        {% endif %}
+        <div class="actions">
+          {% if user.is_authenticated %}
+            <button type="button" class="btn btn-dark btn-block" data-open="alert-dialog">
+              <svg class="icon" viewBox="0 0 24 24" style="stroke:var(--accent)"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></svg>Crear alerta</button>
+          {% else %}
+            <a class="btn btn-dark btn-block" href="{% url 'account_login' %}?next={{ request.path|urlencode }}">
+              <svg class="icon" viewBox="0 0 24 24" style="stroke:var(--accent)"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></svg>Inicia sesión para crear una alerta</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if deals %}
+    <div class="where">
+      <div class="where-head">
+        <h2>Dónde comprarlo</h2>
+        <label class="check"><input type="checkbox" data-official-filter> Solo tiendas oficiales</label>
+      </div>
+      <div style="overflow-x:auto">
+        {% for d in deals %}
+        <div class="deal-row{% if forloop.first %} best{% endif %}" data-official="{{ d.store.is_official|yesno:'1,0' }}">
+          {% include "partials/store_logo.html" with store=d.store url=d.redirect_url %}
+          <span style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+            <span class="badge {% if d.store.is_official %}badge-dark{% endif %}">{{ d.store.is_official|yesno:"Oficial,Revendedor" }}</span>
+            {% if forloop.first %}<span style="font-size:11px;font-weight:700">MEJOR PRECIO</span>{% endif %}
+          </span>
+          <span style="font-size:13px" class="muted">Se activa en {{ d.drm }}</span>
+          <span class="price">{% money d.price d.currency %}</span>
+          <a class="btn btn-sm btn-dark" href="{{ d.redirect_url }}" target="_blank" rel="noopener sponsored">Ir a tienda</a>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="note-line">Revendedor: claves de terceros. Revisa la región y las condiciones antes de comprar.</p>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="card chart-card" aria-labelledby="chT">
+    <div class="chart-head">
+      <div>
+        <h2 id="chT">Histórico de precio</h2>
+        <p class="muted" style="margin:4px 0 0;font-size:13px">Mejor precio entre tiendas. Pasa el ratón por un punto para ver la fecha y el precio exactos.</p>
+      </div>
+      <div class="segmented" role="group" aria-label="Rango de fechas">
+        <span class="thumb-ind" aria-hidden="true"></span>
+        <button type="button" data-range="90">3 meses</button>
+        <button type="button" data-range="180">6 meses</button>
+        <button type="button" data-range="365" aria-pressed="true">1 año</button>
+        <button type="button" data-range="0">Todo</button>
+      </div>
+    </div>
+    <div class="chart" id="price-chart" data-currency="{{ currency }}"></div>
+    <div class="chart-x" id="price-chart-x"></div>
+    {{ timeline|json_script:"timeline-data" }}
+  </section>
+
+  {% if similar %}
+  <section>
+    <h2 style="margin:0 0 16px;font-size:22px">Juegos parecidos</h2>
+    <div class="similar">
+      {% for g in similar %}
+      <a class="card" href="{{ g.get_absolute_url }}">
+        <span class="media">{% if g.header_image %}<img src="{{ g.header_image }}" alt="" loading="lazy">{% endif %}</span>
+        <span class="body"><span>{{ g.title }}</span><span class="price">{% if g.best_deal %}{% money g.best_deal.price g.best_deal.currency %}{% endif %}</span></span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block modals %}
+{% if user.is_authenticated and best %}
+<dialog class="modal" id="alert-dialog" aria-labelledby="alT">
+  <div class="modal-head">
+    <h2 id="alT">Crear alerta de precio</h2>
+    <button type="button" class="icon-btn" data-close aria-label="Cerrar"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div id="alert-dialog-body">{% include "catalog/_alert_form.html" %}</div>
+</dialog>
+{% endif %}
+{% endblock %}

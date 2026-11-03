@@ -1,0 +1,17 @@
+{% load money %}{% if q %}
+<p class="label">{{ results|length }} resultado{{ results|length|pluralize }}</p>
+{% for g in results %}
+<a class="result" href="{{ g.get_absolute_url }}">
+  <span class="thumb" style="width:64px;height:36px">{% if g.header_image %}<img src="{{ g.header_image }}" alt="" loading="lazy">{% endif %}</span>
+  <span class="result-body">
+    <strong>{{ g.title }}</strong>
+    <span>{% if g.genre %}{{ g.genre }} · {% endif %}mejor precio en {{ g.best_deal.store.name }}</span>
+  </span>
+  <span class="price">{% money g.best_deal.price g.best_deal.currency %}</span>
+</a>
+{% empty %}
+<p class="none">No encontramos «{{ q }}». Prueba con otro nombre.</p>
+{% endfor %}
+<a class="all" href="{% url 'catalog:games' %}?q={{ q|urlencode }}">Ver todos los resultados
+  <svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+{% endif %}

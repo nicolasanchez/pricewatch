@@ -1,0 +1,52 @@
+{% load money %}
+<div class="alert-row{% if editing %} editing{% endif %}" id="alert-{{ a.pk }}">
+  <a class="game" href="{{ a.game.get_absolute_url }}">
+    <span class="thumb">{% if a.game.header_image %}<img src="{{ a.game.header_image }}" alt="" loading="lazy">{% endif %}</span>
+    <span>{{ a.game.title }}</span>
+  </a>
+  <span class="price">{% if a.current_price is not None %}{% money a.current_price a.currency %}{% else %}—{% endif %}</span>
+
+  {% if editing %}
+  <form class="inline-edit" hx-post="{% url 'alerts:save_target' a.pk %}" hx-target="#alert-{{ a.pk }}" hx-swap="outerHTML">
+    <input type="hidden" name="tab" value="{{ tab|default:'activas' }}">
+    <label for="ed-{{ a.pk }}" class="sr-only">Nuevo objetivo para {{ a.game.title }}</label>
+    <span class="money-input">
+      <input id="ed-{{ a.pk }}" name="target_price" type="text" inputmode="decimal" value="{{ draft }}" autocomplete="off" autofocus
+             hx-get="{% url 'alerts:row' a.pk %}?tab={{ tab|default:'activas' }}" hx-trigger="keyup[key=='Escape']"
+             hx-target="#alert-{{ a.pk }}" hx-swap="outerHTML">
+      <span aria-hidden="true">{{ currency_symbol }}</span>
+    </span>
+    <button type="submit" class="ok" aria-label="Guardar objetivo"><svg class="icon" viewBox="0 0 24 24" style="stroke-width:2.6"><path d="M5 12l5 5 9-10"/></svg></button>
+    <button type="button" class="ko" aria-label="Cancelar" hx-get="{% url 'alerts:row' a.pk %}?tab={{ tab|default:'activas' }}"
+            hx-target="#alert-{{ a.pk }}" hx-swap="outerHTML"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    {% if error %}<p class="error" role="alert">Escribe un precio válido, por ejemplo 24,99.</p>{% endif %}
+  </form>
+  {% else %}
+  <button type="button" class="target-btn" aria-label="Editar objetivo de {{ a.game.title }}"
+          hx-get="{% url 'alerts:edit' a.pk %}?tab={{ tab|default:'activas' }}" hx-target="#alert-{{ a.pk }}" hx-swap="outerHTML">
+    {% money a.target_price a.currency %}</button>
+  {% endif %}
+
+  <span class="stack">
+    {% if a.bucket == "cumplidas" %}<span class="badge badge-accent">Objetivo alcanzado</span>
+    {% elif a.bucket == "pausadas" %}<span class="badge badge-paper">{% if a.is_expired %}Caducada{% else %}Pausada{% endif %}</span>
+    {% else %}<span class="badge">Esperando</span>{% endif %}
+    <span class="meta" style="font-size:12px">{% if a.note %}{{ a.note }}{% elif a.missing is not None %}Faltan {% money a.missing a.currency %}{% endif %}</span>
+  </span>
+
+  <span>
+    {% if a.current_deal %}{% include "partials/store_logo.html" with store=a.current_deal.store url=a.current_deal.redirect_url %}{% elif a.store %}{% include "partials/store_logo.html" with store=a.store %}{% endif %}
+  </span>
+
+  <span class="row-actions">
+    <button type="button" class="icon-btn" aria-label="Editar objetivo"
+            hx-get="{% url 'alerts:edit' a.pk %}?tab={{ tab|default:'activas' }}" hx-target="#alert-{{ a.pk }}" hx-swap="outerHTML">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>
+    <button type="button" class="icon-btn" aria-label="{% if a.is_paused %}Reanudar alerta{% else %}Pausar alerta{% endif %}"
+            hx-post="{% url 'alerts:pause' a.pk %}" hx-vals='{"tab": "{{ tab|default:'activas' }}"}' hx-target="#alerts-panel" hx-swap="outerHTML">
+      <svg class="icon" viewBox="0 0 24 24"><path d="{% if a.is_paused %}M7 5l12 7-12 7z{% else %}M8 5v14M16 5v14{% endif %}"/></svg></button>
+    <button type="button" class="icon-btn" aria-label="Eliminar alerta"
+            hx-post="{% url 'alerts:delete' a.pk %}" hx-vals='{"tab": "{{ tab|default:'activas' }}"}' hx-target="#alerts-panel" hx-swap="outerHTML">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+  </span>
+</div>

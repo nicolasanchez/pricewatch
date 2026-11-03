@@ -1,0 +1,65 @@
+{% load money %}
+<form class="alert-form" hx-post="{% url 'alerts:create' game.slug %}" hx-target="#alert-dialog-body" hx-swap="innerHTML"
+      data-low="{% if game.cheapest_ever_price is not None %}{% money_value game.cheapest_ever_price game.cheapest_ever_currency %}{% endif %}"
+      data-symbol="{{ currency_symbol }}" data-game="{{ game.title }}">
+  <div class="modal-body">
+    <div class="modal-game">
+      <span class="thumb">{% if game.header_image %}<img src="{{ game.header_image }}" alt="">{% endif %}</span>
+      <span class="stack">
+        <strong style="font-size:17px">{{ game.title }}</strong>
+        <span class="meta">Los precios se muestran en {{ currency_symbol }}.</span>
+      </span>
+    </div>
+
+    <fieldset style="margin:0;padding:0;border:0;display:flex;flex-direction:column;gap:8px">
+      <legend class="step-title" style="margin-bottom:10px">1. ¿En qué tienda?</legend>
+      <div class="store-opts">
+        {% with deals=game.deals.all %}
+        <label class="store-opt">
+          <input type="radio" name="store" value="" data-price="{% for d in deals|dictsort:'price' %}{% if forloop.first %}{% money_value d.price d.currency %}{% endif %}{% endfor %}" {% if not alert_form.store.value %}checked{% endif %}>
+          <span class="radio" aria-hidden="true"></span>
+          <span class="grow"><strong>Cualquier tienda</strong><small>Te avisamos en la primera que baje</small></span>
+          <span class="price">{% for d in deals|dictsort:'price' %}{% if forloop.first %}{% money d.price d.currency %}{% endif %}{% endfor %}</span>
+        </label>
+        {% for d in deals|dictsort:'price' %}
+        <label class="store-opt">
+          <input type="radio" name="store" value="{{ d.store_id }}" data-price="{% money_value d.price d.currency %}" data-name="{{ d.store.name }}"
+                 {% if alert_form.store.value|stringformat:'s' == d.store_id|stringformat:'s' %}checked{% endif %}>
+          <span class="radio" aria-hidden="true"></span>
+          <span class="grow"><strong>{{ d.store.name }}</strong><small>{{ d.store.is_official|yesno:"Oficial,Revendedor" }} · se activa en {{ d.drm }}</small></span>
+          <span class="price">{% money d.price d.currency %}</span>
+        </label>
+        {% endfor %}
+        {% endwith %}
+      </div>
+    </fieldset>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label for="id_target_price" class="step-title">2. Avísame cuando baje de</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <span class="money-input">
+          <input id="id_target_price" name="target_price" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej.: 19,99"
+                 value="{{ alert_form.target_price.value|default_if_none:'' }}" aria-describedby="target-hint" required>
+          <span aria-hidden="true">{{ currency_symbol }}</span>
+        </span>
+        <span data-quick style="display:contents"></span>
+      </div>
+      <p class="hint" id="target-hint">Escribe el precio al que quieres comprarlo o elige una sugerencia.</p>
+      {% for e in alert_form.target_price.errors %}<p class="error" role="alert">{{ e }}</p>{% endfor %}
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <p class="step-title">3. Opciones</p>
+      <label class="check"><input type="checkbox" name="notify_historical_low" {% if alert_form.notify_historical_low.value %}checked{% endif %}> Avisarme también si llega a su mínimo histórico</label>
+      <label class="check"><input type="checkbox" name="official_only" {% if alert_form.official_only.value %}checked{% endif %}> Solo claves de tiendas oficiales</label>
+      <div class="two-cols">
+        <div class="field"><label for="id_channel">Avisar por</label>{{ alert_form.channel }}</div>
+        <div class="field"><label for="id_expiry">Caducidad</label>{{ alert_form.expiry }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button type="button" class="btn btn-outline" data-close>Cancelar</button>
+    <button type="submit" class="btn btn-dark">Crear alerta</button>
+  </div>
+</form>

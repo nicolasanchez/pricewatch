@@ -1,0 +1,38 @@
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <a class="brand" href="{% url 'core:home' %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:26px;height:26px"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+          <span style="font-size:19px">PriceWatch</span>
+        </a>
+        <p>Comparador de precios de juegos para PC.</p>
+      </div>
+      <div class="footer-col">
+        <h2>Contacto</h2>
+        <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+        <a href="https://github.com/nicolasanchez" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/nicol%C3%A1s-s%C3%A1nchez-torregrosa-06a819222/" rel="noopener">LinkedIn</a>
+        <span>Valencia, España</span>
+      </div>
+      <div class="footer-col">
+        <h2>Navegación</h2>
+        <a href="{% url 'core:home' %}">Inicio</a>
+        <a href="{% url 'catalog:games' %}">Juegos</a>
+        <a href="{% url 'alerts:list' %}">Mis alertas</a>
+      </div>
+      <div class="footer-col">
+        <h2>Legal</h2>
+        <a href="{% url 'core:legal' %}#aviso">Aviso legal</a>
+        <a href="{% url 'core:legal' %}#privacidad">Política de privacidad</a>
+        <a href="{% url 'core:legal' %}#cookies">Política de cookies</a>
+        <a href="{% url 'core:legal' %}#terminos">Términos de uso</a>
+        <a href="{% url 'core:legal' %}#cookies">Configurar cookies</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© {% now "Y" %} PriceWatch · Proyecto de portfolio</span>
+      <span>PriceWatch no vende juegos. Los precios son orientativos y pueden cambiar en la tienda. Algunos enlaces pueden ser de afiliado. Las marcas citadas pertenecen a sus propietarios.</span>
+    </div>
+  </div>
+</footer>

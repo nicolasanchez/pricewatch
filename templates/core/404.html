@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Página no encontrada · PriceWatch{% endblock %}
+{% block content %}
+<div class="container page" style="align-items:flex-start">
+  <h1 style="font-size:44px">Esta página no existe</h1>
+  <p class="muted" style="margin:0">Puede que el juego ya no esté en el catálogo o que el enlace esté mal escrito.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a class="btn btn-dark" href="{% url 'core:home' %}">Ir al inicio</a>
+    <a class="btn btn-outline" href="{% url 'catalog:games' %}">Ver juegos</a>
+  </div>
+</div>
+{% endblock %}

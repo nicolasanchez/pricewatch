@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="container hero">
+  <div class="hero-main">
+    <p class="eyebrow">Comparador de juegos para PC</p>
+    <h1>No vuelvas a pagar de más para jugar.</h1>
+    <p class="hero-sub">Steam, GOG, Epic, Humble y tiendas de claves en una sola búsqueda, con histórico de precios y avisos cuando baje.</p>
+    <div class="search">
+      <form class="search-form" role="search" action="{% url 'catalog:games' %}" method="get">
+        <label for="q" class="sr-only">Buscar juego</label>
+        <input id="q" type="search" name="q" autocomplete="off" placeholder="Busca un juego: Hades II, Balatro…"
+               hx-get="{% url 'core:search' %}" hx-trigger="input changed delay:200ms, search" hx-target="#search-results"
+               aria-controls="search-results">
+        <button type="submit" class="btn btn-dark">Buscar</button>
+      </form>
+      <div id="search-results" class="search-results" aria-live="polite"></div>
+    </div>
+    {% if suggestions %}
+    <div class="suggest">
+      <span class="muted">Prueba con:</span>
+      {% for g in suggestions %}<a href="{{ g.get_absolute_url }}">{{ g.title }}</a>{% if not forloop.last %}<span aria-hidden="true">·</span>{% endif %}{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <aside class="card how">
+    <h2>Cómo funciona</h2>
+    <div class="step"><span class="step-n">1</span><div><h3>Busca el juego</h3><p>Verás el precio de cada tienda en un solo listado.</p></div></div>
+    <div class="step"><span class="step-n">2</span><div><h3>Mira el histórico</h3><p>Comprueba si la oferta es real o si ya estuvo más barato.</p></div></div>
+    <div class="step"><span class="step-n on">3</span><div><h3>Crea una alerta</h3><p>Pon tu precio y te avisamos por correo cuando baje.</p></div></div>
+    {% if user.is_authenticated %}
+      <a class="btn btn-dark btn-block" href="{% url 'catalog:games' %}">Buscar un juego</a>
+    {% else %}
+      <a class="btn btn-dark btn-block" href="{% url 'account_signup' %}">Crear cuenta gratis</a>
+    {% endif %}
+  </aside>
+</section>
+
+<section class="container explore" aria-labelledby="exp">
+  <div class="explore-head">
+    <div>
+      <h2 id="exp">Explorar</h2>
+      <p class="muted" style="margin:6px 0 0;font-size:15px">Listas que se actualizan solas cada vez que consultamos los precios.</p>
+    </div>
+    <a class="btn btn-sm btn-outline" href="{% url 'catalog:games' %}">Ver todas las categorías
+      <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <div class="cat-tiles">
+    {% for c in categories %}
+    <a class="card cat-tile" href="{% url 'catalog:games' %}?categoria={{ c.key }}">
+      <span class="ico"><svg class="icon" viewBox="0 0 24 24"><path d="{{ c.icon }}"/></svg></span>
+      <span><strong>{{ c.name }}</strong><span>{{ c.description }}</span></span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+{% if stores %}
+<section class="container stores-strip" aria-labelledby="st">
+  <p class="section-label" id="st">Tiendas que comparamos</p>
+  <div class="marquee-wrap">
+    <div class="marquee">
+      {% for s in stores %}{% include "partials/store_logo.html" with store=s %}{% endfor %}
+      {% for s in stores %}<span class="store-logo" aria-hidden="true">{% if s.logo_url %}<img src="{{ s.logo_url }}" alt="" loading="lazy">{% endif %}<span>{{ s.name }}</span></span>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% with ns=request.resolver_match.namespace url_name=request.resolver_match.url_name %}
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="{% url 'core:home' %}" aria-label="PriceWatch, inicio">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+      <span>PriceWatch</span>
+    </a>
+    <nav class="main-nav" aria-label="Principal">
+      <a href="{% url 'core:home' %}" {% if ns == 'core' and url_name == 'home' %}aria-current="page"{% endif %}>Inicio</a>
+      <a href="{% url 'catalog:games' %}" {% if ns == 'catalog' %}aria-current="page"{% endif %}>Juegos</a>
+      <a href="{% url 'alerts:list' %}" {% if ns == 'alerts' %}aria-current="page"{% endif %}>Mis alertas</a>
+    </nav>
+    <div class="header-actions">
+      {% if user.is_authenticated %}
+        <button type="button" class="bell" aria-label="Avisos{% if unread_count %} ({{ unread_count }} sin leer){% endif %}" aria-expanded="false" aria-controls="notes" data-dropdown="notes"
+                {% if unread_count %}hx-post="{% url 'alerts:mark_read' %}" hx-trigger="click once" hx-swap="none"{% endif %}>
+          <svg class="icon" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></svg>
+          {% if unread_count %}<span class="dot"></span>{% endif %}
+        </button>
+        <div class="dropdown" id="notes" hidden>
+          <p class="dropdown-title">Avisos recientes</p>
+          {% for n in header_notifications %}
+            <a class="note{% if not n.read_at %} unread{% endif %}" href="{% if n.game %}{{ n.game.get_absolute_url }}{% else %}{% url 'alerts:list' %}{% endif %}">
+              <span class="bullet"></span>
+              <span>{{ n.message }}<time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|date:"j M Y" }}</time></span>
+            </a>
+          {% empty %}
+            <p class="empty-note">Aún no tienes avisos. Te llegarán aquí cuando baje algún precio.</p>
+          {% endfor %}
+          <a class="dropdown-foot" href="{% url 'alerts:list' %}?tab=cumplidas">Ver alertas cumplidas</a>
+        </div>
+        <a class="user-link" href="{% url 'profile' %}" aria-label="Mi cuenta">
+          <span class="avatar">{{ user.profile.initials }}</span>
+          <span>{{ user.first_name|default:user.username }}</span>
+        </a>
+        <form method="post" action="{% url 'account_logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">Salir</button>
+        </form>
+      {% else %}
+        <a class="btn btn-sm btn-outline-light" href="{% url 'account_login' %}">Iniciar sesión</a>
+        <a class="btn btn-sm btn-accent" href="{% url 'account_signup' %}">Crear cuenta</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+{% endwith %}

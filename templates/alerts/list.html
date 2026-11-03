@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Mis alertas · PriceWatch{% endblock %}
+{% block content %}
+<div class="container page">
+  <div class="page-head">
+    <div>
+      <h1>Mis alertas</h1>
+      <p>Te escribimos cuando alguna tienda baja del precio que hayas puesto.</p>
+    </div>
+    <a class="btn btn-dark" href="{% url 'catalog:games' %}">
+      <svg class="icon" viewBox="0 0 24 24" style="stroke:var(--accent)"><path d="M12 5v14M5 12h14"/></svg>Nueva alerta</a>
+  </div>
+  {% include "alerts/_panel.html" %}
+</div>
+{% endblock %}

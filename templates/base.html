@@ -1,0 +1,28 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}PriceWatch · Compara precios de juegos para PC{% endblock %}</title>
+  <meta name="description" content="{% block description %}Compara precios de juegos para PC en Steam, GOG, Epic, Humble y más, con histórico y alertas de precio.{% endblock %}">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230E0E10'/%3E%3Cpath d='M5 16l4.5-4.5 3 3L19 8' fill='none' stroke='%2319B36B' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <script src="{% static 'js/app.js' %}" defer></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <a class="sr-only" href="#contenido">Saltar al contenido</a>
+  {% include "partials/header.html" %}
+  <main id="contenido">{% block content %}{% endblock %}</main>
+  {% include "partials/footer.html" %}
+  {% if messages %}
+  <div class="flash-stack" data-autohide>
+    {% for message in messages %}<div class="toast" role="status">{{ message }}</div>{% endfor %}
+  </div>
+  {% endif %}
+  {% block modals %}{% endblock %}
+</body>
+</html>

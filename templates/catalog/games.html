@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load money %}
+{% block title %}{{ title }} · PriceWatch{% endblock %}
+{% block content %}
+<div class="container page">
+  <div class="page-head">
+    <div>
+      <h1>Juegos</h1>
+      <p>Elige una categoría o una tienda. Debajo verás los juegos que encajan, empezando por los más populares.</p>
+    </div>
+    <form class="search-form" role="search" method="get" action="" style="max-width:420px;flex:1 1 320px;box-shadow:none">
+      <label for="gq" class="sr-only">Buscar en juegos</label>
+      {% if category.key != 'todas' %}<input type="hidden" name="categoria" value="{{ category.key }}">{% endif %}
+      {% if store %}<input type="hidden" name="tienda" value="{{ store.slug }}">{% endif %}
+      <input id="gq" type="search" name="q" value="{{ q }}" placeholder="Buscar por nombre…" style="height:44px">
+      <button class="btn btn-sm btn-dark" type="submit">Buscar</button>
+    </form>
+  </div>
+
+  <section aria-labelledby="catT" style="display:flex;flex-direction:column;gap:14px">
+    <h2 id="catT" class="section-label">Categorías</h2>
+    <nav class="cat-grid" aria-label="Categorías">
+      {% for c in categories %}
+      <a class="cat-btn" href="?categoria={{ c.key }}{% if store %}&tienda={{ store.slug }}{% endif %}{% if q %}&q={{ q|urlencode }}{% endif %}"
+         {% if c.key == category.key %}aria-current="true"{% endif %}>
+        <span class="ico"><svg class="icon" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="{{ c.icon }}"/></svg></span>
+        <span><strong>{{ c.name }}</strong><small>{{ c.caption }}</small></span>
+      </a>
+      {% endfor %}
+    </nav>
+    <nav class="chips" aria-label="Tiendas">
+      <span style="font-size:13px;font-weight:600;margin-right:4px">Tienda</span>
+      <a class="chip" href="?categoria={{ category.key }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if not store %}aria-current="true"{% endif %}>Todas</a>
+      {% for s in stores %}
+      <a class="chip" href="?categoria={{ category.key }}&tienda={{ s.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if store and store.pk == s.pk %}aria-current="true"{% endif %}>{{ s.name }}</a>
+      {% endfor %}
+    </nav>
+  </section>
+
+  <section aria-labelledby="resT" style="display:flex;flex-direction:column;gap:16px">
+    <div class="results-head">
+      <h2 id="resT">{{ title }}</h2>
+      <span class="muted" style="font-size:14px">{{ page.paginator.count }} juego{{ page.paginator.count|pluralize }}</span>
+    </div>
+
+    {% if not page.paginator.count %}
+    <div class="empty">
+      <p style="margin:0;font-size:16px;font-weight:600">No hay juegos que cumplan esta combinación.</p>
+      <a class="btn btn-dark" href="{% url 'catalog:games' %}">Quitar filtros</a>
+    </div>
+    {% endif %}
+
+    {% if top %}
+    <div class="top-grid">
+      {% for g in top %}
+      <a class="card game-card" href="{{ g.get_absolute_url }}">
+        <span class="media">
+          {% if g.header_image %}<img src="{{ g.header_image }}" alt="" loading="lazy">{% endif %}
+          <span class="rank">{{ forloop.counter }}</span>
+          {% if g.best_deal.savings %}<span class="badge badge-accent off" style="border:0">{{ g.best_deal.savings|pct }}</span>{% endif %}
+        </span>
+        <span class="body">
+          <span class="stack">
+            <h3>{{ g.title }}</h3>
+            <span class="meta">{% if g.genre %}{{ g.genre }} · {% endif %}{% if g.metacritic_score %}Metacritic {{ g.metacritic_score }}{% endif %}{% if g.steam_rating_percent %} · Steam {{ g.steam_rating_percent }} %{% endif %}</span>
+          </span>
+          <span class="row-between">
+            <span class="stack" style="align-items:flex-start">
+              <span class="store-logo" style="height:32px">{% if g.best_deal.store.logo_url %}<img src="{{ g.best_deal.store.logo_url }}" alt="">{% endif %}{{ g.best_deal.store.name }}</span>
+              {% if g.is_historical_low %}<span class="tag-low">MÍNIMO HISTÓRICO</span>{% endif %}
+            </span>
+            <span class="stack" style="align-items:flex-end">
+              {% if g.best_deal.normal_price > g.best_deal.price %}<span class="strike">{% money g.best_deal.normal_price g.best_deal.currency %}</span>{% endif %}
+              <span class="price">{% money g.best_deal.price g.best_deal.currency %}</span>
+            </span>
+          </span>
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if rest %}
+    <div class="card list">
+      <div class="list-row head" aria-hidden="true"><span>#</span><span></span><span>Juego</span><span>Mejor tienda</span><span>Dto.</span><span>Precio</span><span></span></div>
+      {% for g in rest %}
+      <a class="list-row" href="{{ g.get_absolute_url }}">
+        <span class="num">{% if top %}{{ forloop.counter|add:3 }}{% else %}{{ forloop.counter|add:offset }}{% endif %}</span>
+        <span class="thumb">{% if g.header_image %}<img src="{{ g.header_image }}" alt="" loading="lazy">{% endif %}</span>
+        <span class="stack">
+          <strong style="font-size:15px">{{ g.title }}</strong>
+          <span class="meta">{% if g.genre %}{{ g.genre }} · {% endif %}{% if g.metacritic_score %}Metacritic {{ g.metacritic_score }}{% endif %}{% if g.steam_rating_percent %} · Steam {{ g.steam_rating_percent }} %{% endif %}</span>
+        </span>
+        <span class="stack" style="align-items:flex-start;gap:4px">
+          <span class="store-logo" style="height:32px">{% if g.best_deal.store.logo_url %}<img src="{{ g.best_deal.store.logo_url }}" alt="">{% endif %}{{ g.best_deal.store.name }}</span>
+          {% if g.is_historical_low %}<span class="tag-low">MÍNIMO HISTÓRICO</span>{% endif %}
+        </span>
+        <span>{% if g.best_deal.savings %}<span class="badge badge-dark" style="border:0">{{ g.best_deal.savings|pct }}</span>{% endif %}</span>
+        <span class="stack">
+          <span class="price">{% money g.best_deal.price g.best_deal.currency %}</span>
+          {% if g.best_deal.normal_price > g.best_deal.price %}<span class="strike" style="font-size:12px">{% money g.best_deal.normal_price g.best_deal.currency %}</span>{% endif %}
+        </span>
+        <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if page.has_other_pages %}
+    <nav class="pagination" aria-label="Páginas">
+      {% if page.has_previous %}<a class="btn btn-sm btn-outline" href="?categoria={{ category.key }}{% if store %}&tienda={{ store.slug }}{% endif %}{% if q %}&q={{ q|urlencode }}{% endif %}&pagina={{ page.previous_page_number }}">Anterior</a>{% endif %}
+      <span class="btn btn-sm" style="cursor:default">Página {{ page.number }} de {{ page.paginator.num_pages }}</span>
+      {% if page.has_next %}<a class="btn btn-sm btn-outline" href="?categoria={{ category.key }}{% if store %}&tienda={{ store.slug }}{% endif %}{% if q %}&q={{ q|urlencode }}{% endif %}&pagina={{ page.next_page_number }}">Siguiente</a>{% endif %}
+    </nav>
+    {% endif %}
+    <p class="small muted" style="margin:0">Precios en {{ currency_symbol }}{% if currency != 'USD' %}, convertidos desde dólares con el tipo de cambio del día{% endif %}. Datos de CheapShark.</p>
+  </section>
+</div>
+{% endblock %}

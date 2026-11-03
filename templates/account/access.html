@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+{% block title %}{% if mode == 'signup' %}Crear cuenta{% else %}Iniciar sesión{% endif %} · PriceWatch{% endblock %}
+{% block content %}
+<div class="access-wrap">
+  <section class="access" data-access data-mode="{{ mode }}"
+           data-login-url="{% url 'account_login' %}" data-signup-url="{% url 'account_signup' %}">
+    <div class="access-title">
+      <h1 class="t-login" {% if mode == 'signup' %}aria-hidden="true"{% endif %}>Hola de nuevo</h1>
+      <h1 class="t-signup" {% if mode == 'login' %}aria-hidden="true"{% endif %}>Crea tu cuenta</h1>
+    </div>
+
+    <div class="tabs-slider" role="tablist" aria-label="Acceso">
+      <span class="ind" aria-hidden="true"></span>
+      <button type="button" role="tab" data-tab="login" aria-selected="{% if mode == 'login' %}true{% else %}false{% endif %}" aria-controls="pane-login">Iniciar sesión</button>
+      <button type="button" role="tab" data-tab="signup" aria-selected="{% if mode == 'signup' %}true{% else %}false{% endif %}" aria-controls="pane-signup">Crear cuenta</button>
+    </div>
+
+    <div class="social">
+      {% if google_enabled %}
+      <a class="social-btn" href="{% provider_login_url 'google' process='login' %}{% if redirect_field_value %}?next={{ redirect_field_value|urlencode }}{% endif %}">
+        <span class="mark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span>Continuar con Google</a>
+      {% else %}
+      <span class="social-btn" aria-disabled="true" title="Falta configurar GOOGLE_CLIENT_ID">
+        <span class="mark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span>Continuar con Google</span>
+      {% endif %}
+      {% if apple_enabled %}
+      <a class="social-btn" href="{% provider_login_url 'apple' process='login' %}">
+        <span class="mark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span>Continuar con Apple</a>
+      {% else %}
+      <span class="social-btn" aria-disabled="true" title="Falta configurar APPLE_CLIENT_ID">
+        <span class="mark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span>Continuar con Apple</span>
+      {% endif %}
+    </div>
+    <div class="divider">o con tu correo</div>
+
+    <div class="panes">
+      {# ---------- Iniciar sesión ---------- #}
+      <form class="pane" id="pane-login" role="tabpanel" method="post" action="{% url 'account_login' %}" {% if mode != 'login' %}hidden{% endif %}>
+        {% csrf_token %}
+        {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+        {% with f=login_form %}
+        {% if f.non_field_errors %}<ul class="errorlist">{% for e in f.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        <div class="field">
+          <label for="login-email">Correo electrónico</label>
+          <input id="login-email" type="email" name="login" autocomplete="email" placeholder="tu@correo.com" value="{{ f.login.value|default_if_none:'' }}" required>
+          {{ f.login.errors }}
+        </div>
+        <div class="field">
+          <div class="forgot-row">
+            <label for="login-pass">Contraseña</label>
+            <a href="{% url 'account_reset_password' %}" style="font-size:13px">¿La has olvidado?</a>
+          </div>
+          <input id="login-pass" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
+          {{ f.password.errors }}
+        </div>
+        <label class="check"><input type="checkbox" name="remember"> Mantener la sesión iniciada</label>
+        {% endwith %}
+        <button type="submit" class="btn btn-dark btn-block" style="height:50px;font-size:16px">Entrar</button>
+        <p class="switch-line">¿No tienes cuenta? <button type="button" class="btn-link" data-tab="signup">Regístrate</button></p>
+      </form>
+
+      {# ---------- Crear cuenta ---------- #}
+      <form class="pane" id="pane-signup" role="tabpanel" method="post" action="{% url 'account_signup' %}" {% if mode != 'signup' %}hidden{% endif %}>
+        {% csrf_token %}
+        {% with f=signup_form %}
+        {% if f.non_field_errors %}<ul class="errorlist">{% for e in f.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        <div class="field-row">
+          <div class="field"><label for="su-first">Nombre</label>
+            <input id="su-first" type="text" name="first_name" autocomplete="given-name" placeholder="Nicolás" value="{{ f.first_name.value|default_if_none:'' }}">{{ f.first_name.errors }}</div>
+          <div class="field"><label for="su-last">Apellidos</label>
+            <input id="su-last" type="text" name="last_name" autocomplete="family-name" placeholder="Sánchez Torregrosa" value="{{ f.last_name.value|default_if_none:'' }}">{{ f.last_name.errors }}</div>
+        </div>
+        <div class="field">
+          <label for="su-user">Nombre de usuario</label>
+          <input id="su-user" type="text" name="username" autocomplete="username" placeholder="Ej.: nico_gamer" value="{{ f.username.value|default_if_none:'' }}" required>
+          <span class="help">Es el nombre que verás en tu perfil.</span>{{ f.username.errors }}
+        </div>
+        <div class="field">
+          <label for="su-email">Correo electrónico</label>
+          <input id="su-email" type="email" name="email" autocomplete="email" placeholder="tu@correo.com" value="{{ f.email.value|default_if_none:'' }}" required>{{ f.email.errors }}
+        </div>
+        <div class="field">
+          <label for="su-pass">Contraseña</label>
+          <input id="su-pass" type="password" name="password1" autocomplete="new-password" placeholder="••••••••" required>{{ f.password1.errors }}
+        </div>
+        <div class="field">
+          <label for="su-pass2">Repite la contraseña</label>
+          <input id="su-pass2" type="password" name="password2" autocomplete="new-password" placeholder="••••••••" required>
+          <span class="help">Mínimo 8 caracteres, que no sea solo números.</span>{{ f.password2.errors }}
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="id_country">País</label>{{ f.country }}</div>
+          <div class="field"><label for="id_currency">Moneda</label>{{ f.currency }}<span class="help">Verás todos los precios en esta moneda.</span></div>
+        </div>
+        <fieldset class="field" style="margin:0;padding:0;border:0">
+          <legend class="label" style="margin-bottom:8px">Tiendas en las que sueles comprar</legend>
+          <div class="checks">{% for cb in f.favorite_stores %}<label>{{ cb.tag }} {{ cb.choice_label }}</label>{% endfor %}</div>
+        </fieldset>
+        <label class="check-line"><input type="checkbox" name="email_alerts" {% if f.email_alerts.value %}checked{% endif %}> <span>Quiero recibir por correo los avisos de mis alertas.</span></label>
+        <label class="check-line"><input type="checkbox" name="accept_terms" required {% if f.accept_terms.value %}checked{% endif %}>
+          <span>Acepto los <a href="{% url 'core:legal' %}#terminos" target="_blank">términos de uso</a> y la <a href="{% url 'core:legal' %}#privacidad" target="_blank">política de privacidad</a>.</span></label>
+        {{ f.accept_terms.errors }}
+        {% endwith %}
+        <button type="submit" class="btn btn-dark btn-block" style="height:50px;font-size:16px">Crear cuenta</button>
+        <p class="switch-line">¿Ya tienes cuenta? <button type="button" class="btn-link" data-tab="login">Inicia sesión</button></p>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

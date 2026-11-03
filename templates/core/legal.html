@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Información legal · PriceWatch{% endblock %}
+{% block content %}
+<div class="container page legal" data-legal>
+  <div class="page-head">
+    <div>
+      <h1>Información legal</h1>
+      <p>Última actualización: [fecha]</p>
+    </div>
+  </div>
+
+  <div class="legal-tabs" role="tablist" aria-label="Documentos legales">
+    <button type="button" role="tab" data-doc="aviso" aria-selected="true" aria-controls="doc-aviso">Aviso legal</button>
+    <button type="button" role="tab" data-doc="privacidad" aria-selected="false" aria-controls="doc-privacidad">Privacidad</button>
+    <button type="button" role="tab" data-doc="cookies" aria-selected="false" aria-controls="doc-cookies">Cookies</button>
+    <button type="button" role="tab" data-doc="terminos" aria-selected="false" aria-controls="doc-terminos">Términos de uso</button>
+  </div>
+
+  <p class="notice">Plantilla de ejemplo. Rellena los datos entre corchetes y revísala antes de publicar la web.</p>
+
+  <article class="card legal-doc">
+    <section id="doc-aviso" role="tabpanel" data-panel="aviso">
+      <h2>Aviso legal</h2>
+      <h3>Titular de la web</h3>
+      <p>Nombre: [nombre y apellidos] · NIF: [NIF] · Domicilio: [dirección] · Correo: <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+      <h3>Objeto</h3>
+      <p>PriceWatch es un comparador de precios de juegos para PC. No vende productos: muestra precios de tiendas de terceros y enlaza a ellas para que el usuario compre allí.</p>
+      <h3>Propiedad intelectual</h3>
+      <p>Los nombres, logos e imágenes de juegos y tiendas pertenecen a sus propietarios y se muestran solo para identificarlos. Los datos de precios proceden de CheapShark.</p>
+      <h3>Responsabilidad</h3>
+      <p>Los precios se obtienen de fuentes externas y pueden cambiar en cualquier momento. El precio válido es siempre el de la tienda en el momento de la compra. Las conversiones de moneda usan el tipo de cambio diario del Banco Central Europeo y son orientativas.</p>
+    </section>
+    <section id="doc-privacidad" role="tabpanel" data-panel="privacidad" hidden>
+      <h2>Política de privacidad</h2>
+      <h3>Responsable</h3>
+      <p>[nombre y apellidos] · <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+      <h3>Qué datos tratamos</h3>
+      <p>Nombre, correo electrónico, nombre de usuario, país, moneda preferida, tiendas favoritas y las alertas de precio que crees.</p>
+      <h3>Para qué los usamos</h3>
+      <p>Para gestionar tu cuenta, mostrarte los precios en tu moneda y enviarte los avisos de precio que has pedido. No los vendemos ni los usamos para publicidad.</p>
+      <h3>Cuánto tiempo los guardamos</h3>
+      <p>Mientras tengas la cuenta activa. Si la borras, eliminamos tus datos en un plazo de [plazo].</p>
+      <h3>Tus derechos</h3>
+      <p>Puedes pedir acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>. También puedes reclamar ante la Agencia Española de Protección de Datos.</p>
+    </section>
+    <section id="doc-cookies" role="tabpanel" data-panel="cookies" hidden>
+      <h2>Política de cookies</h2>
+      <p>Usamos cookies necesarias para que la web funcione (sesión y seguridad) y, solo si las aceptas, cookies para recordar tus preferencias y medir visitas.</p>
+      <div style="margin-top:18px" data-cookie-prefs>
+        <div class="cookie-row"><span><strong>Necesarias</strong><span>Inicio de sesión y seguridad. Siempre activas.</span></span>
+          <button type="button" class="switch" role="switch" aria-checked="true" aria-label="Cookies necesarias" disabled></button></div>
+        <div class="cookie-row"><span><strong>Preferencias</strong><span>Recuerdan tus filtros y ajustes.</span></span>
+          <button type="button" class="switch" role="switch" aria-checked="false" aria-label="Cookies de preferencias" data-cookie="pref"></button></div>
+        <div class="cookie-row"><span><strong>Analíticas</strong><span>Medición anónima de visitas con [herramienta].</span></span>
+          <button type="button" class="switch" role="switch" aria-checked="false" aria-label="Cookies analíticas" data-cookie="ana"></button></div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px">
+          <button type="button" class="btn btn-dark" data-cookie-save>Guardar preferencias</button>
+          <span role="status" style="font-size:14px;font-weight:600" data-cookie-status></span>
+        </div>
+      </div>
+    </section>
+    <section id="doc-terminos" role="tabpanel" data-panel="terminos" hidden>
+      <h2>Términos de uso</h2>
+      <h3>El servicio</h3>
+      <p>PriceWatch compara precios y envía alertas de forma gratuita. Podemos cambiar o dejar de ofrecer funciones avisando en la web.</p>
+      <h3>Tu cuenta</h3>
+      <p>Eres responsable de mantener segura tu contraseña. Puedes borrar tu cuenta cuando quieras escribiendo a <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+      <h3>Alertas</h3>
+      <p>Hacemos lo posible por avisarte a tiempo, pero no garantizamos que una oferta siga disponible cuando llegue el aviso.</p>
+      <h3>Enlaces a tiendas</h3>
+      <p>Algunos enlaces pueden ser de afiliado. Eso no cambia el precio que pagas ni el orden en que mostramos las tiendas.</p>
+    </section>
+  </article>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+# Blueprint de Render. La base de datos es PostgreSQL en Neon: pega su cadena en DATABASE_URL.
+services:
+  - type: web
+    name: pricewatch
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    preDeployCommand: python manage.py migrate --noinput
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.1
+      - key: DEBUG
+        value: "0"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: ALLOWED_HOSTS
+        value: pricewatch.nicosantor.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://pricewatch.nicosantor.com
+      - key: SITE_URL
+        value: https://pricewatch.nicosantor.com
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
