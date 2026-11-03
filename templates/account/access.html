@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load socialaccount %}
 {% block title %}{% if mode == 'signup' %}Crear cuenta{% else %}Iniciar sesión{% endif %} · PriceWatch{% endblock %}
+{% block header %}{% include "partials/header_minimal.html" %}{% endblock %}
 {% block content %}
 <div class="access-wrap">
   <section class="access" data-access data-mode="{{ mode }}"

@@ -15,7 +15,7 @@
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <a class="sr-only" href="#contenido">Saltar al contenido</a>
-  {% include "partials/header.html" %}
+  {% block header %}{% include "partials/header.html" %}{% endblock %}
   <main id="contenido">{% block content %}{% endblock %}</main>
   {% include "partials/footer.html" %}
   {% if messages %}

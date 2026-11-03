@@ -15,3 +15,8 @@ class AccessPagesTests(TestCase):
             resp = self.client.get(url)
             self.assertEqual(resp.status_code, 200)
             self.assertTemplateUsed(resp, "account/access.html")
+
+    def test_access_page_has_minimal_header(self):
+        resp = self.client.get(reverse("account_login"))
+        self.assertTemplateUsed(resp, "partials/header_minimal.html")
+        self.assertTemplateNotUsed(resp, "partials/header.html")

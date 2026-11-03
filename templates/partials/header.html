@@ -6,7 +6,6 @@
       <span>PriceWatch</span>
     </a>
     <nav class="main-nav" aria-label="Principal">
-      <a href="{% url 'core:home' %}" {% if ns == 'core' and url_name == 'home' %}aria-current="page"{% endif %}>Inicio</a>
       <a href="{% url 'catalog:games' %}" {% if ns == 'catalog' %}aria-current="page"{% endif %}>Juegos</a>
       <a href="{% url 'alerts:list' %}" {% if ns == 'alerts' %}aria-current="page"{% endif %}>Mis alertas</a>
     </nav>
