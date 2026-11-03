@@ -5,8 +5,8 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    preDeployCommand: python manage.py migrate --noinput
-    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2
+    # El plan gratuito no admite preDeployCommand: las migraciones se aplican al arrancar.
+    startCommand: python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.1
